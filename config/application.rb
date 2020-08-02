@@ -1,19 +1,44 @@
-require_relative 'boot'
-
-require 'rails/all'
-
-# Require the gems listed in Gemfile, including any gems
-# you've limited to :test, :development, or :production.
-Bundler.require(*Rails.groups)
-
-module Pictweet2
-  class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.0
-
-    # Settings in config/environments/* take precedence over those specified here.
-    # Application configuration can go into files in config/initializers
-    # -- all .rb files in that directory are automatically loaded after loading
-    # the framework and any gems in your application.
-  end
-end
+<div class="content_post" style="background-image: url(<%= @tweet.image %>);">
+<% if user_signed_in? && current_user.id == @tweet.user_id %>
+  <div class="more">
+    <span><%= image_tag 'arrow_top.png' %></span>
+    <ul class="more_list">
+      <li>
+        <%= link_to '編集', edit_tweet_path(@tweet.id), method: :get %>
+      </li>
+      <li>
+        <%= link_to '削除', tweet_path(@tweet.id), method: :delete %>
+      </li>
+    </ul>
+  </div>
+<% end %>
+<p><%= @tweet.text %></p>
+<span class="name">
+  <a href="/users/<%= @tweet.user.id %>">
+    <span>投稿者</span><%= @tweet.user.nickname %>
+  </a>
+</span>
+</div>
+<div class="container">
+<% if current_user %>
+  <%= form_with(model: [@tweet, @comment], local: true) do |form| %>
+    <%= form.text_area :text, placeholder: "コメントする", rows: "2" %>
+    <%= form.submit "SEND" %>
+  <% end %>
+<% else %>
+  <strong><p>※※※ コメントの投稿には新規登録/ログインが必要です ※※※</p>
+  </strong>
+<% end %>
+<div class="comments">
+  <h4>＜コメント一覧＞</h4>
+  <% if @comments %>
+    <% @comments.each do |comment| %>
+      <p>
+        <strong><%= link_to comment.user.nickname, "/users/#{comment.user_id}" %>：</strong>
+        <%= comment.text %>
+      </p>
+    <% end %>
+  <% end %>
+</div>
+</div>
+</div>
